@@ -256,3 +256,4 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
         </AuthenticatedLayout>
     );
 }
+

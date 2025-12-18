@@ -26,7 +26,7 @@ export default function SpeciesCard({ species, onViewDetails, onAddToCollection,
                     <img src={photo} className="w-full h-full object-cover" />
                 ) : (
                     <div className="w-full h-full bg-blue-900/50 flex items-center justify-center text-6xl">
-                        🐟
+                        
                     </div>
                 )}
             </motion.div>
@@ -49,14 +49,14 @@ export default function SpeciesCard({ species, onViewDetails, onAddToCollection,
                         onClick={() => onViewDetails(species.id)}
                         className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg font-semibold"
                     >
-                        📘 Read More
+                        Read More
                     </button>
 
                     <button
                         onClick={() => onAddToCollection(species)}
                         className="px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 shadow-lg font-semibold"
                     >
-                        ➕ Add to Collection
+                        Add to Collection
                     </button>
                 </div>
             </motion.div>

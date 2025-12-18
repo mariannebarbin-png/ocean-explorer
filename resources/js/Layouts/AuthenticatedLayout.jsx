@@ -34,7 +34,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     href={route('collection.index')}
                                     active={route().current('collection.index')}
                                 >
-                                    📚 My Collection
+                                    My Collection
                                 </NavLink>
                             </div>
                         </div>

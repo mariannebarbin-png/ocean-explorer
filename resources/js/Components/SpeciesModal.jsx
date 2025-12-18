@@ -55,7 +55,7 @@ export default function SpeciesModal({ species, onClose, onAddToCollection }) {
                         {/* Taxonomic Rank */}
                         {(species.taxonRank || species.rank) && (
                             <div className="bg-white/10 rounded-xl p-4 border border-white/20">
-                                <h3 className="text-lg font-semibold text-cyan-300 mb-2">📊 Taxonomic Rank</h3>
+                                <h3 className="text-lg font-semibold text-cyan-300 mb-2">Taxonomic Rank</h3>
                                 <p className="text-white/90 capitalize">
                                     {species.taxonRank || species.rank}
                                 </p>
@@ -65,7 +65,7 @@ export default function SpeciesModal({ species, onClose, onAddToCollection }) {
                         {/* Classification */}
                         {species.kingdom && (
                             <div className="bg-white/10 rounded-xl p-4 border border-white/20">
-                                <h3 className="text-lg font-semibold text-cyan-300 mb-3">🧬 Classification</h3>
+                                <h3 className="text-lg font-semibold text-cyan-300 mb-3">Classification</h3>
                                 <div className="grid grid-cols-2 gap-3 text-sm">
                                     <div>
                                         <span className="text-cyan-200 font-medium">Kingdom:</span>
@@ -101,7 +101,7 @@ export default function SpeciesModal({ species, onClose, onAddToCollection }) {
 
                         {/* Description */}
                         <div className="bg-gradient-to-r from-cyan-900/50 to-blue-900/50 rounded-xl p-6 border border-cyan-500/30">
-                            <h3 className="text-lg font-semibold text-cyan-300 mb-3">📝 About This Species</h3>
+                            <h3 className="text-lg font-semibold text-cyan-300 mb-3">About This Species</h3>
                             <p className="text-white/90 leading-relaxed">
                                 {species.description || `The ${commonName || scientificName} is a fascinating marine species that plays an important role in ocean ecosystems. These remarkable creatures have adapted to life in the ocean through millions of years of evolution.`}
                             </p>
@@ -115,7 +115,7 @@ export default function SpeciesModal({ species, onClose, onAddToCollection }) {
                             }}
                             className="w-full mt-6 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-105"
                         >
-                            ➕ Add to My Collection
+                            Add to My Collection
                         </button>
                     </div>
                 </motion.div>

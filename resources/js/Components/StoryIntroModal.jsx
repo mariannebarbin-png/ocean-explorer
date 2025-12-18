@@ -31,7 +31,7 @@ export default function StoryIntroModal({ show, onClose }) {
                             }}
                             className="text-8xl mb-6"
                         >
-                            🌊
+                            
                         </motion.div>
 
                         {/* Title */}
@@ -50,7 +50,7 @@ export default function StoryIntroModal({ show, onClose }) {
                             Discover fascinating marine species, learn about their habitats, 
                             and build your own collection of ocean wonders. 
                             <br /><br />
-                            <span className="text-cyan-300">Scroll down to begin your underwater adventure! 🐠</span>
+                            <span className="text-cyan-300">Scroll down to begin your underwater adventure! </span>
                         </p>
 
                         {/* Action Button */}
@@ -60,7 +60,7 @@ export default function StoryIntroModal({ show, onClose }) {
                             onClick={onClose}
                             className="px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-full text-xl font-bold shadow-2xl transition-all"
                         >
-                            🚀 Start Exploring
+                            Start Exploring
                         </motion.button>
 
                         {/* Decorative elements */}
