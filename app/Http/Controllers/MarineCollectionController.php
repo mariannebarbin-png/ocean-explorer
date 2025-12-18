@@ -9,7 +9,7 @@ use Inertia\Inertia;
 
 class MarineCollectionController extends Controller
 {
-    protected $api;
+    protected INaturalistApiService $api;
 
     public function __construct(INaturalistApiService $api)
     {
@@ -146,12 +146,18 @@ class MarineCollectionController extends Controller
     /**
      * Random exploration using iNaturalist
      */
-    public function explore()
-    {
-        $randomSpecies = $this->api->getRandomSpecies(20);
+    public function explore(Request $request)
+        {
+            $randomSpecies = $this->api->getRandomSpecies(20);
+            
+            // Get user's collection count
+              $collectionCount = $request->user()
+            ? $request->user()->marineCollections()->count()
+            : 0;
 
-        return Inertia::render('Explore/Index', [
-            'species' => $randomSpecies,
-        ]);
-    }
+            return Inertia::render('Explore/Index', [
+                'species' => $randomSpecies,
+                'collectionCount' => $collectionCount,
+            ]);
+        }
 }

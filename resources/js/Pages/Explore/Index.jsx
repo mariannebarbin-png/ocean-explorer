@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { motion } from 'framer-motion';
 import OceanBackground from '@/Components/OceanBackground';
@@ -8,7 +9,7 @@ import SpeciesCard from '@/Components/SpeciesCard';
 import SpeciesModal from '@/Components/SpeciesModal';
 import StoryIntroModal from '@/Components/StoryIntroModal';
 
-export default function Explore({ auth, species = [] }) {
+export default function Explore({ auth, species = [], collectionCount = 0 }) {
     const [showIntro, setShowIntro] = useState(true);
     const [selectedSpecies, setSelectedSpecies] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
@@ -71,7 +72,7 @@ export default function Explore({ auth, species = [] }) {
             });
 
             if (response.ok) {
-                alert('🌊 Species added to your collection!');
+                alert('Species added to your collection!');
             } else if (response.status === 409) {
                 alert('This species is already in your collection');
             } else {
@@ -107,7 +108,7 @@ export default function Explore({ auth, species = [] }) {
                             transition={{ duration: 0.8 }}
                             className="text-6xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl"
                         >
-                            🌊 Ocean Explorer
+                            Ocean Explorer
                         </motion.h1>
 
                         <motion.p
@@ -140,11 +141,30 @@ export default function Explore({ auth, species = [] }) {
                                     disabled={loading}
                                     className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-xl font-bold transition-all disabled:opacity-50 shadow-lg"
                                 >
-                                    {loading ? '🔍 Searching...' : '🔍 Search'}
+                                    {loading ? 'Searching...' : 'Search'}
                                 </button>
                             </div>
                         </motion.form>
-
+                        {/*add to collection button */}
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.7 }}
+                                className="mt-6"
+                            >
+                                <Link
+                                    href={route('collection.index')}
+                                    className="inline-flex items-center gap-2 px-6 py-3
+                                            bg-white/10 backdrop-blur-lg
+                                            hover:bg-white/20
+                                            text-white rounded-xl
+                                            font-semibold
+                                            border-2 border-white/20
+                                            transition-all shadow-lg"
+                                >
+                                     My Collection ({collectionCount})
+                                </Link>
+                            </motion.div>
                         {searchResults.length > 0 && (
                             <motion.button
                                 initial={{ opacity: 0 }}
@@ -170,7 +190,7 @@ export default function Explore({ auth, species = [] }) {
                             className="text-center py-20"
                         >
                             <p className="text-2xl text-white/80">
-                                {loading ? '🐠 Searching the depths...' : '🔍 Search to discover marine species'}
+                                {loading ? 'Searching the depths...' : 'Search to discover marine species'}
                             </p>
                         </motion.div>
                     ) : (
@@ -182,7 +202,7 @@ export default function Explore({ auth, species = [] }) {
                                 className="text-center mb-16"
                             >
                                 <h2 className="text-4xl font-bold text-white mb-4">
-                                    {searchResults.length > 0 ? '🔎 Search Results' : '🐟 Featured Marine Species'}
+                                    {searchResults.length > 0 ? 'Search Results' : 'Featured Marine Species'}
                                 </h2>
                                 <div className="h-1 w-32 bg-gradient-to-r from-cyan-400 to-blue-600 mx-auto rounded-full"></div>
                             </motion.div>
@@ -208,7 +228,7 @@ export default function Explore({ auth, species = [] }) {
                                 className="text-center mt-20 py-16 bg-white/10 backdrop-blur-lg rounded-3xl border-2 border-white/20"
                             >
                                 <p className="text-3xl text-white font-bold mb-4">
-                                    🌊 End of Your Ocean Journey
+                                    End of Your Ocean Journey
                                 </p>
                                 <p className="text-xl text-cyan-200 mb-6">
                                     You've discovered {displayedSpecies.length} amazing species!
@@ -217,7 +237,7 @@ export default function Explore({ auth, species = [] }) {
                                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                                     className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-xl font-bold shadow-lg transition-all"
                                 >
-                                    ⬆️ Back to Surface
+                                    Back to Surface
                                 </button>
                             </motion.div>
                         </>
