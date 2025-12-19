@@ -15,7 +15,6 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [addingId, setAddingId] = useState(null);
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -28,16 +27,7 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
         try {
             const response = await fetch(`/api/species/search?query=${encodeURIComponent(searchQuery)}`);
             const data = await response.json();
-            // locally filter results to ensure matches are accurate to the query
-            const q = searchQuery.trim().toLowerCase();
-            const results = (data.results || []).filter((r) => {
-                const common = (r.common_name || '').toLowerCase();
-                const sci = (r.scientific_name || '').toLowerCase();
-                const desc = (r.description || '').toLowerCase();
-                return common.includes(q) || sci.includes(q) || desc.includes(q);
-            });
-
-            setSearchResults(results);
+            setSearchResults(data.results || []);
         } catch (error) {
             console.error('Search error:', error);
             setSearchResults([]);
@@ -57,47 +47,39 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
     };
 
     const addToCollection = async (species) => {
-        const taxonId = species.id || species.taxonID || species.taxon_id;
-        try {
-            setAddingId(taxonId);
+    try {
+        const collectionData = {
+            taxon_id: species.id,
+            scientific_name: species.name,
+            common_name: species.preferred_common_name || null,
+            description:
+                species.description ||
+                species.wikipedia_summary ||
+                null,
+            rank: species.rank,
+            image_url: species.photo_url || null,
+            family: species.family || null,
+        };
 
-            const collectionData = {
-                taxon_id: taxonId,
-                scientific_name: species.name || species.scientific_name || species.scientificName,
-                common_name: species.preferred_common_name || species.common_name || species.vernacularName || null,
-                description: species.description || species.wikipedia_summary || null,
-                rank: species.rank || species.taxonRank || null,
-                image_url: species.photo_url || null,
-                family: species.family || null,
-            };
+        const response = await fetch('/collection', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document
+                    .querySelector('meta[name="csrf-token"]')
+                    .content,
+            },
+            body: JSON.stringify(collectionData),
+        });
 
-            const response = await fetch('/collection', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify(collectionData),
-            });
-
-            if (response.ok) {
-                alert(' Species added to your collection!');
-            } else if (response.status === 409) {
-                alert('This species is already in your collection');
-            } else {
-                const text = await response.text();
-                console.error('Add failed', response.status, text);
-                alert('Error adding species to collection');
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Failed to add species to collection');
-        } finally {
-            setAddingId(null);
+        if (response.ok) {
+            alert('🌊 Species added to your collection!');
         }
-    };
+
+    } catch (error) {
+        console.error(error);
+    }
+};
 
 
     const displayedSpecies = searchResults.length > 0 ? searchResults : species;
@@ -213,7 +195,6 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
                                         species={item}
                                         onViewDetails={viewDetails}
                                         onAddToCollection={addToCollection}
-                                        isAdding={addingId === (item.id || item.taxonID || item.taxon_id)}
                                         index={index}
                                     />
                                 ))}
@@ -250,7 +231,6 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
                     species={selectedSpecies}
                     onClose={() => setSelectedSpecies(null)}
                     onAddToCollection={addToCollection}
-                    isAdding={addingId === (selectedSpecies.id || selectedSpecies.taxonID || selectedSpecies.taxon_id)}
                 />
             )}
         </AuthenticatedLayout>

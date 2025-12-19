@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-export default function SpeciesCard({ species, onViewDetails, onAddToCollection, index, isAdding = false }) {
+export default function SpeciesCard({ species, onViewDetails, onAddToCollection, index }) {
 
     const photo = species.photo_url;
     const common = species.common_name || "Unknown Species";
@@ -79,10 +79,9 @@ export default function SpeciesCard({ species, onViewDetails, onAddToCollection,
 
                     <button
                         onClick={() => onAddToCollection(species)}
-                        disabled={isAdding}
-                        className={`px-6 py-3 rounded-xl shadow-lg font-semibold ${isAdding ? 'bg-green-400/60 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
+                        className="px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 shadow-lg font-semibold"
                     >
-                        {isAdding ? 'Adding…' : 'Add to Collection'}
+                        Add to Collection
                     </button>
                 </div>
             </motion.div>

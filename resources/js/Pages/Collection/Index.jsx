@@ -9,12 +9,10 @@ export default function CollectionIndex({ auth, collections }) {
     const [editingNote, setEditingNote] = useState(null);
     const [noteText, setNoteText] = useState('');
     const [deletedId, setDeletedId] = useState(null);
-    const [savingNoteId, setSavingNoteId] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
 
-    /* -----------------------------
+    /* ---------------------------------
        Helpers
-    ------------------------------ */
+    ----------------------------------*/
     const cleanText = (text) => {
         if (!text) return '';
         return text.replace(/<[^>]*>/g, '').trim();
@@ -27,12 +25,19 @@ export default function CollectionIndex({ auth, collections }) {
         if (n.includes('dolphin')) return '🐬';
         if (n.includes('turtle')) return '🐢';
         if (n.includes('octopus')) return '🐙';
+        if (n.includes('crab')) return '🦀';
+        if (n.includes('lobster')) return '🦞';
+        if (n.includes('jellyfish')) return '🪼';
+        if (n.includes('coral')) return '🪸';
+        if (n.includes('starfish')) return '⭐';
+        if (n.includes('seahorse')) return '🐴';
+        if (n.includes('clownfish') || n.includes('clown')) return '🐠';
         return '🐟';
     };
 
-    /* -----------------------------
+    /* ---------------------------------
        Actions
-    ------------------------------ */
+    ----------------------------------*/
     const handleEditNote = (collection) => {
         setEditingNote(collection.id);
         setNoteText(collection.personal_notes || '');
@@ -40,28 +45,22 @@ export default function CollectionIndex({ auth, collections }) {
 
     const handleSaveNote = async (collectionId) => {
         try {
-            setSavingNoteId(collectionId);
-
             const response = await fetch(`/collection/${collectionId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
-                credentials: 'same-origin',
                 body: JSON.stringify({ personal_notes: noteText }),
             });
 
             if (response.ok) {
+                alert('📝 Note saved successfully!');
                 setEditingNote(null);
-            } else {
-                alert('Failed to save note');
             }
         } catch (error) {
             console.error(error);
-        } finally {
-            setSavingNoteId(null);
+            alert('Failed to save note');
         }
     };
 
@@ -72,9 +71,8 @@ export default function CollectionIndex({ auth, collections }) {
             const response = await fetch(`/collection/${collectionId}`, {
                 method: 'DELETE',
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
-                credentials: 'same-origin',
             });
 
             if (response.ok) {
@@ -82,18 +80,9 @@ export default function CollectionIndex({ auth, collections }) {
             }
         } catch (error) {
             console.error(error);
+            alert('Failed to delete species');
         }
     };
-
-    /* -----------------------------
-       Search filter
-    ------------------------------ */
-    const filteredCollections = collections.data
-        ?.filter(c => c.id !== deletedId)
-        ?.filter(c =>
-            c.common_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            c.scientific_name?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
 
     return (
         <AuthenticatedLayout user={auth.user}>
@@ -106,106 +95,96 @@ export default function CollectionIndex({ auth, collections }) {
                 <div className="max-w-7xl mx-auto">
 
                     {/* Header */}
-                    <div className="text-center mb-10">
+                    <div className="text-center mb-12">
                         <motion.h1
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
                             className="text-5xl font-bold text-white mb-4"
                         >
-                            My Ocean Collection
+                            📚 My Ocean Collection
                         </motion.h1>
-
                         <p className="text-cyan-200 mb-6">
-                            Personal marine species discovery journal
+                            Your personal marine species discovery journal
                         </p>
-
-                        {/* 🔍 Search Collection */}
-                        <input
-                            type="text"
-                            placeholder="Search your collection..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="
-                                w-full max-w-md mx-auto
-                                px-5 py-3
-                                bg-white/10 backdrop-blur
-                                text-white placeholder-white/60
-                                rounded-xl border border-white/20
-                                focus:outline-none focus:ring-2 focus:ring-cyan-400
-                            "
-                        />
+                        <Link
+                            href="/explore"
+                            className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl font-semibold shadow-lg"
+                        >
+                            🔍 Explore More Species
+                        </Link>
                     </div>
 
                     {/* Empty State */}
-                    {filteredCollections.length === 0 ? (
+                    {collections.data?.length === 0 ? (
                         <div className="text-center py-20 text-white">
-                            <p className="text-2xl mb-4">No species found</p>
+                            <p className="text-3xl mb-4">🐠</p>
+                            <p className="text-2xl mb-4">Your collection is empty</p>
                             <Link
                                 href="/explore"
                                 className="px-8 py-4 bg-blue-600 rounded-xl font-bold"
                             >
-                                Explore Ocean
+                                Start Exploring
                             </Link>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredCollections.map((collection, index) => (
+
+                            {collections.data
+                                .filter(c => c.id !== deletedId)
+                                .map((collection, index) => (
                                 <motion.div
                                     key={collection.id}
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: index * 0.05 }}
-                                    className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl overflow-hidden"
+                                    className="bg-white/10 backdrop-blur-lg rounded-2xl border border-white/20 shadow-xl"
                                 >
-                                    {/* Image Header */}
-                                    <div className="h-48 bg-black/30">
-                                        {collection.image_url ? (
-                                            <img
-                                                src={collection.image_url}
-                                                alt={collection.common_name}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="h-full flex items-center justify-center text-6xl">
-                                                {getEmoji(collection.common_name)}
-                                            </div>
-                                        )}
-                                    </div>
 
-                                    {/* Content */}
-                                    <div className="p-6">
+                                    {/* Header */}
+                                    <div className="p-6 text-center bg-blue-700/40">
+                                        <div className="text-6xl mb-3">
+                                            {getEmoji(collection.common_name)}
+                                        </div>
                                         <h3 className="text-xl font-bold text-white">
                                             {collection.common_name || 'Marine Species'}
                                         </h3>
-                                        <p className="text-sm italic text-cyan-200 mb-3">
+                                        <p className="text-sm italic text-cyan-200">
                                             {collection.scientific_name}
                                         </p>
+                                    </div>
+
+                                    {/* Body */}
+                                    <div className="p-6">
 
                                         {/* Description */}
-                                        <div className="mb-4 text-white/80 text-sm">
-                                            {collection.description
-                                                ? cleanText(collection.description)
-                                                : 'No description available.'}
+                                        <div className="mb-4">
+                                            <h4 className="text-sm font-semibold text-cyan-300 mb-2">
+                                                🐚 About this species
+                                            </h4>
+                                            <div className="p-3 bg-white/5 rounded-lg text-white/80 text-sm leading-relaxed">
+                                                {collection.description
+                                                    ? cleanText(collection.description)
+                                                    : 'No description available for this species.'}
+                                            </div>
                                         </div>
 
                                         {/* Notes */}
                                         <div className="mb-4">
                                             <div className="flex justify-between mb-2">
                                                 <span className="text-cyan-300 text-sm font-semibold">
-                                                    📝 Notes
+                                                    📝 Your Notes
                                                 </span>
                                                 {editingNote === collection.id ? (
                                                     <button
                                                         onClick={() => handleSaveNote(collection.id)}
-                                                        disabled={savingNoteId === collection.id}
-                                                        className="text-xs px-3 py-1 bg-green-500 rounded"
+                                                        className="text-xs px-3 py-1 bg-green-500 text-white rounded"
                                                     >
-                                                        {savingNoteId === collection.id ? 'Saving...' : 'Save'}
+                                                        Save
                                                     </button>
                                                 ) : (
                                                     <button
                                                         onClick={() => handleEditNote(collection)}
-                                                        className="text-xs px-3 py-1 bg-blue-500 rounded"
+                                                        className="text-xs px-3 py-1 bg-blue-500 text-white rounded"
                                                     >
                                                         Edit
                                                     </button>
@@ -216,22 +195,22 @@ export default function CollectionIndex({ auth, collections }) {
                                                 <textarea
                                                     value={noteText}
                                                     onChange={(e) => setNoteText(e.target.value)}
-                                                    rows="3"
-                                                    className="w-full p-2 bg-white/10 rounded text-white"
+                                                    className="w-full p-2 bg-white/10 text-white rounded-lg"
+                                                    rows="4"
                                                 />
                                             ) : (
-                                                <div className="p-2 bg-white/5 rounded text-white/80 text-sm">
+                                                <div className="p-3 bg-white/5 rounded-lg text-white/80 text-sm">
                                                     {collection.personal_notes || 'No notes yet.'}
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* Delete */}
+                                        {/* Actions */}
                                         <button
                                             onClick={() => handleDelete(collection.id)}
                                             className="w-full py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold"
                                         >
-                                            Remove
+                                            🗑️ Remove
                                         </button>
                                     </div>
                                 </motion.div>

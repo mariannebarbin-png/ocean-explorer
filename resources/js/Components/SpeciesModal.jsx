@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function SpeciesModal({ species, onClose, onAddToCollection, isAdding = false }) {
+export default function SpeciesModal({ species, onClose, onAddToCollection }) {
     if (!species) return null;
 
     const scientificName = species.scientificName || species.scientific_name;
@@ -112,15 +112,13 @@ export default function SpeciesModal({ species, onClose, onAddToCollection, isAd
 
                         {/* Action Button */}
                         <button
-                            onClick={async () => {
-                                if (isAdding) return;
-                                await onAddToCollection(species);
+                            onClick={() => {
+                                onAddToCollection(species);
                                 onClose();
                             }}
-                            disabled={isAdding}
-                            className={`w-full mt-6 px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-105 ${isAdding ? 'bg-green-400/60 cursor-not-allowed text-white' : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white'}`}
+                            className="w-full mt-6 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-105"
                         >
-                            {isAdding ? 'Adding…' : 'Add to My Collection'}
+                            Add to My Collection
                         </button>
                     </div>
                 </motion.div>
