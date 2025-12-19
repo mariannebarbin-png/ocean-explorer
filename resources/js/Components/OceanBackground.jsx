@@ -1,38 +1,46 @@
 import React, { useEffect, useRef, useState } from "react";
 
-export default function OceanBackground() 
-{
+export default function OceanBackground() {
     const [overlayOpacity, setOverlayOpacity] = useState(0);
     const fishRef1 = useRef(null);
     const fishRef2 = useRef(null);
 
-    // Random bubble generator
+    /* -----------------------------------
+       Scroll-based darkening (depth effect)
+    ------------------------------------ */
     useEffect(() => {
-        // darken background a bit as the user scrolls down
         let ticking = false;
+
         function onScroll() {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
-                    const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
-                    const ratio = Math.min(window.scrollY / (max * 0.6), 1); // earlier darken
-                    setOverlayOpacity(ratio * 0.8);
+                    const max = Math.max(
+                        document.documentElement.scrollHeight - window.innerHeight,
+                        1
+                    );
+                    const ratio = Math.min(window.scrollY / (max * 0.6), 1);
+                    setOverlayOpacity(ratio * 0.85);
                     ticking = false;
                 });
                 ticking = true;
             }
         }
 
-        window.addEventListener('scroll', onScroll);
+        window.addEventListener("scroll", onScroll);
         onScroll();
 
-        return () => window.removeEventListener('scroll', onScroll);
+        return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    
+    /* ------------------------
+       Bubble generator
+    ------------------------- */
     useEffect(() => {
         const container = document.getElementById("bubble-container");
 
         function createBubble() {
+            if (!container) return;
+
             const bubble = document.createElement("div");
             const size = Math.random() * 12 + 8;
 
@@ -42,106 +50,104 @@ export default function OceanBackground()
             bubble.style.left = Math.random() * window.innerWidth + "px";
             bubble.style.animationDuration = Math.random() * 6 + 4 + "s";
 
-            container?.appendChild(bubble);
-
+            container.appendChild(bubble);
             setTimeout(() => bubble.remove(), 10000);
         }
 
-        const bubbleInterval = setInterval(createBubble, 400);
-
-        return () => clearInterval(bubbleInterval);
+        const interval = setInterval(createBubble, 400);
+        return () => clearInterval(interval);
     }, []);
 
+    /* ------------------------
+       Fish animation
+    ------------------------- */
     useEffect(() => {
         const fishes = [fishRef1.current, fishRef2.current];
 
         fishes.forEach((fish) => {
             if (!fish) return;
 
-            function startSwim() {
-                
-                const startY = Math.random() * window.innerHeight * 0.7;
+            function swim() {
+                const startY = Math.random() * window.innerHeight * 0.65;
                 fish.style.top = `${startY}px`;
+                fish.style.left = "-220px";
 
-                
-                fish.style.left = "-200px";
-
-                
                 const duration = Math.random() * 10 + 8;
                 fish.style.animationDuration = `${duration}s`;
 
-                
                 fish.classList.remove("swim");
                 void fish.offsetWidth;
                 fish.classList.add("swim");
             }
 
-            
-            startSwim();
-
-            
-            fish.addEventListener("animationend", startSwim);
+            swim();
+            fish.addEventListener("animationend", swim);
         });
     }, []);
 
-    function Corals() {
-    const coralCount = 8; // number of corals
-    const corals = [];
-
-    for (let i = 0; i < coralCount; i++) {
-        const left = Math.random() * 100; // random horizontal position
-        const scale = 0.3 + Math.random() * 0.3; // random size
-
-        corals.push(
-                <img
-                key={i}
-                src="/pictures/coral.png" // make sure you have a coral.png in public/pictures
-                alt="Coral"
-                className="absolute bottom-0"
-                style={{
-                    left: `${left}vw`,
-                    bottom: 0,
-                    transform: `scale(${scale})`,
-                    zIndex: 0,
-                }}
-            />
-        );
-    }
-
-    return <>{corals}</>;
-}
-
-
     return (
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-            
-            <div className="absolute inset-0 bg-gradient-to-b from-[#00263f] via-[#003f7f] to-[#0077be]"></div>
+            {/* Ocean gradient */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#00263f] via-[#003f7f] to-[#0077be]" />
 
-            {/* scroll-based dark overlay */}
+            {/* Depth darkening overlay */}
             <div
-                style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%)', opacity: overlayOpacity }}
-                className="absolute inset-0 pointer-events-none"
+                className="absolute inset-0"
+                style={{
+                    background:
+                        "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%)",
+                    opacity: overlayOpacity,
+                }}
             />
 
-            
-            <div id="bubble-container" className="absolute inset-0"></div>
+            {/* Bubbles */}
+            <div id="bubble-container" className="absolute inset-0" />
 
-            <div className="absolute inset-x-0 bottom-0 pointer-events-none">
-                <Corals />
+            {/* ---------------- CORALS (FIXED) ---------------- */}
+            <div className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none z-0">
+                {/* Left coral */}
+                <img
+                    src="/pictures/coral.png"
+                    alt="Left Coral"
+                    className="
+                        absolute
+                        bottom-0
+                        left-0
+                        w-[260px]
+                        opacity-80
+                        blur-[0.5px]
+                    "
+                />
+
+                {/* Right coral */}
+                <img
+                    src="/pictures/coral.png"
+                    alt="Right Coral"
+                    className="
+                        absolute
+                        bottom-0
+                        right-0
+                        w-[260px]
+                        opacity-80
+                        scale-x-[-1]
+                        blur-[0.5px]
+                    "
+                />
             </div>
+
+            {/* Fish */}
             <img
                 ref={fishRef1}
                 src="/pictures/fish2.png"
                 className="fish swim"
-                alt="Fish 1"
+                alt="Fish"
             />
 
-            
             <img
                 ref={fishRef2}
                 src="/pictures/submarine.png"
                 className="fish swim scale-x-[-1] opacity-70"
-                alt="Fish 2"
+                alt="Submarine"
             />
         </div>
     );
