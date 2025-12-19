@@ -47,42 +47,40 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
     };
 
     const addToCollection = async (species) => {
-        try {
-            const collectionData = {
-                taxon_id: species.taxonID || species.id || species.taxon_id,
-                scientific_name: species.scientificName || species.scientific_name || 'Unknown',
-                common_name: species.vernacularName || species.common_name || null,
-                authority: species.scientificNameAuthorship || species.authority || null,
-                rank: species.taxonRank || species.rank || 'Species',
-                status: species.status || 'accepted',
-                kingdom: species.kingdom || 'Animalia',
-                phylum: species.phylum || null,
-                class: species.class || null,
-                order: species.order || null,
-                family: species.family || null,
-            };
+    try {
+        const collectionData = {
+            taxon_id: species.id,
+            scientific_name: species.name,
+            common_name: species.preferred_common_name || null,
+            description:
+                species.description ||
+                species.wikipedia_summary ||
+                null,
+            rank: species.rank,
+            image_url: species.photo_url || null,
+            family: species.family || null,
+        };
 
-            const response = await fetch('/collection', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                },
-                body: JSON.stringify(collectionData),
-            });
+        const response = await fetch('/collection', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document
+                    .querySelector('meta[name="csrf-token"]')
+                    .content,
+            },
+            body: JSON.stringify(collectionData),
+        });
 
-            if (response.ok) {
-                alert('Species added to your collection!');
-            } else if (response.status === 409) {
-                alert('This species is already in your collection');
-            } else {
-                alert('Error adding species to collection');
-            }
-        } catch (error) {
-            console.error('Error adding to collection:', error);
-            alert('Failed to add species to collection');
+        if (response.ok) {
+            alert('🌊 Species added to your collection!');
         }
-    };
+
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 
     const displayedSpecies = searchResults.length > 0 ? searchResults : species;
 

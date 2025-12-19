@@ -103,8 +103,11 @@ export default function SpeciesModal({ species, onClose, onAddToCollection }) {
                         <div className="bg-gradient-to-r from-cyan-900/50 to-blue-900/50 rounded-xl p-6 border border-cyan-500/30">
                             <h3 className="text-lg font-semibold text-cyan-300 mb-3">About This Species</h3>
                             <p className="text-white/90 leading-relaxed">
-                                {species.description || `The ${commonName || scientificName} is a fascinating marine species that plays an important role in ocean ecosystems. These remarkable creatures have adapted to life in the ocean through millions of years of evolution.`}
+                                {species.description
+                                    ? species.description.replace(/<[^>]*>/g, '')
+                                    : `The ${commonName || scientificName} is a fascinating marine species...`}
                             </p>
+
                         </div>
 
                         {/* Action Button */}

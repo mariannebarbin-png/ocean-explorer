@@ -24,6 +24,7 @@ class MarineCollection extends Model
         'order',
         'family',
         'image_url',
+        'description',
         'personal_notes',
     ];
 

@@ -5,7 +5,29 @@ export default function SpeciesCard({ species, onViewDetails, onAddToCollection,
     const photo = species.photo_url;
     const common = species.common_name || "Unknown Species";
     const sci = species.scientific_name;
-    const desc = species.description;
+
+    // ---- CLEAN & PREVIEW DESCRIPTION ----
+    const cleanDescription = (text) => {
+        if (!text) return null;
+        return text.replace(/<[^>]*>/g, '').trim();
+    };
+
+    const getPreviewDescription = (text, maxLength = 180) => {
+        if (!text) return null;
+
+        const cleanText = cleanDescription(text);
+
+        // First sentence only
+        const firstSentence = cleanText.split('. ')[0];
+
+        return firstSentence.length > maxLength
+            ? firstSentence.slice(0, maxLength) + '...'
+            : firstSentence + '.';
+    };
+
+    const previewDescription =
+        getPreviewDescription(species.description) ||
+        `The ${common} is an important part of ocean ecosystems. Scroll to learn more about its habitat and behavior.`;
 
     return (
         <motion.div
@@ -23,7 +45,11 @@ export default function SpeciesCard({ species, onViewDetails, onAddToCollection,
                 className="w-64 h-64 rounded-3xl overflow-hidden shadow-2xl border-2 border-white/30"
             >
                 {photo ? (
-                    <img src={photo} className="w-full h-full object-cover" />
+                    <img
+                        src={photo}
+                        alt={common}
+                        className="w-full h-full object-cover"
+                    />
                 ) : (
                     <div className="w-full h-full bg-blue-900/50 flex items-center justify-center text-6xl">
                         
@@ -40,8 +66,7 @@ export default function SpeciesCard({ species, onViewDetails, onAddToCollection,
                 <p className="text-xl italic text-cyan-200 mb-4">{sci}</p>
 
                 <p className="text-white/80 leading-relaxed mb-6">
-                    {desc ||
-                        `The ${common} is an important part of ocean ecosystems. Scroll to learn more about its habitat and behavior.`}
+                    {previewDescription}
                 </p>
 
                 <div className="flex gap-4">

@@ -74,6 +74,7 @@ class MarineCollectionController extends Controller
             'taxon_id' => 'required|integer',
             'scientific_name' => 'required|string',
             'common_name' => 'nullable|string',
+            'description' => 'nullable|string',
             'authority' => 'nullable|string',
             'rank' => 'nullable|string',
             'status' => 'nullable|string',

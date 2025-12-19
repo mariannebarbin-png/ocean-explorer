@@ -53,23 +53,41 @@ class INaturalistApiService
         }
     }
 
-    public function getSpeciesById(int $id)
-    {
-        try {
-            $response = Http::timeout(6)
+   public function getSpeciesById(int $id)
+{
+    try {
+        $response = Http::timeout(5)
             ->retry(2, 200)
-            ->get("$this->baseUrl/taxa/$id");
+            ->get("{$this->baseUrl}/taxa/{$id}");
 
-            if (!$response->successful()) return null;
-
-            $item = $response->json()['results'][0] ?? null;
-
-            return $item ? $this->normalize($item) : null;
-        }
-        catch (\Exception $e) {
+        if (!$response->successful()) {
             return null;
         }
+
+        $species = $response->json()['results'][0] ?? null;
+
+        if (!$species) {
+            return null;
+        }
+
+        // 🔑 Normalize description
+        $species['description'] =
+            $species['wikipedia_summary']
+            ?? $species['excerpt']
+            ?? null;
+
+        // 🔑 Normalize image
+        $species['photo_url'] =
+            $species['default_photo']['medium_url']
+            ?? null;
+
+        return $species;
+
+    } catch (\Exception $e) {
+        return null;
     }
+}
+
 
     public function getRandomSpecies($count = 20)
     {

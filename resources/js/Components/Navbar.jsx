@@ -13,7 +13,7 @@ export default function Navbar() {
         <nav className="fixed top-0 left-0 right-0 bg-black/40 backdrop-blur-md shadow-md z-50">
             <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
                 <Link href="/" className="text-2xl font-extrabold">
-                    🌊 Ocean Explorer
+                    Ocean Explorer
                 </Link>
 
                 <div className="flex gap-6 text-lg">
@@ -22,9 +22,6 @@ export default function Navbar() {
                     </Link>
                     <Link href="/collection" className={linkClass("/collection")}>
                         Collection
-                    </Link>
-                    <Link href="/journal" className={linkClass("/journal")}>
-                        Journal
                     </Link>
                 </div>
             </div>
