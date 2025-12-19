@@ -144,25 +144,7 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
                             </div>
                         </motion.form>
                         {/*add to collection button */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.7 }}
-                                className="mt-6"
-                            >
-                                <Link
-                                    href={route('collection.index')}
-                                    className="inline-flex items-center gap-2 px-6 py-3
-                                            bg-white/10 backdrop-blur-lg
-                                            hover:bg-white/20
-                                            text-white rounded-xl
-                                            font-semibold
-                                            border-2 border-white/20
-                                            transition-all shadow-lg"
-                                >
-                                     My Collection ({collectionCount})
-                                </Link>
-                            </motion.div>
+                            {/* collection link moved to navbar */}
                         {searchResults.length > 0 && (
                             <motion.button
                                 initial={{ opacity: 0 }}

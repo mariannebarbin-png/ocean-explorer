@@ -1,11 +1,34 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function OceanBackground() 
 {
+    const [overlayOpacity, setOverlayOpacity] = useState(0);
     const fishRef1 = useRef(null);
     const fishRef2 = useRef(null);
 
     // Random bubble generator
+    useEffect(() => {
+        // darken background a bit as the user scrolls down
+        let ticking = false;
+        function onScroll() {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+                    const ratio = Math.min(window.scrollY / (max * 0.6), 1); // earlier darken
+                    setOverlayOpacity(ratio * 0.8);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+
+        window.addEventListener('scroll', onScroll);
+        onScroll();
+
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+
+    
     useEffect(() => {
         const container = document.getElementById("bubble-container");
 
@@ -19,7 +42,7 @@ export default function OceanBackground()
             bubble.style.left = Math.random() * window.innerWidth + "px";
             bubble.style.animationDuration = Math.random() * 6 + 4 + "s";
 
-            container.appendChild(bubble);
+            container?.appendChild(bubble);
 
             setTimeout(() => bubble.remove(), 10000);
         }
@@ -70,7 +93,7 @@ export default function OceanBackground()
         const scale = 0.3 + Math.random() * 0.3; // random size
 
         corals.push(
-            <img
+                <img
                 key={i}
                 src="/pictures/coral.png" // make sure you have a coral.png in public/pictures
                 alt="Coral"
@@ -79,7 +102,7 @@ export default function OceanBackground()
                     left: `${left}vw`,
                     bottom: 0,
                     transform: `scale(${scale})`,
-                    zIndex: 5000,
+                    zIndex: 0,
                 }}
             />
         );
@@ -92,12 +115,20 @@ export default function OceanBackground()
     return (
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
             
-            <div className="absolute inset-0 bg-gradient-to-b from-[#001f3f] via-[#003f7f] to-[#0077be]"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-[#00263f] via-[#003f7f] to-[#0077be]"></div>
+
+            {/* scroll-based dark overlay */}
+            <div
+                style={{ background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 100%)', opacity: overlayOpacity }}
+                className="absolute inset-0 pointer-events-none"
+            />
 
             
             <div id="bubble-container" className="absolute inset-0"></div>
 
-            <Corals />
+            <div className="absolute inset-x-0 bottom-0 pointer-events-none">
+                <Corals />
+            </div>
             <img
                 ref={fishRef1}
                 src="/pictures/fish2.png"
