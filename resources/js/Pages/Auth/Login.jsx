@@ -102,6 +102,13 @@ export default function Login({ status, canResetPassword }) {
 
                         {/* Actions */}
                         <div className="flex items-center justify-between">
+                                <Link
+                                    href={route('register')}
+                                    className="text-sm text-cyan-200 hover:text-white underline"
+                                >
+                                    Register
+                                </Link>
+                            
                             <PrimaryButton
                                 className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 px-6 py-3 rounded-xl font-bold"
                                 disabled={processing}
