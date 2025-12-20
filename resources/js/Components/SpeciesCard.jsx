@@ -1,6 +1,9 @@
 import { motion } from "framer-motion";
+import { useState } from 'react';
 
 export default function SpeciesCard({ species, onViewDetails, onAddToCollection, index }) {
+    const [isViewing, setIsViewing] = useState(false);
+    const [isAdding, setIsAdding] = useState(false);
 
     const photo = species.photo_url;
     const common = species.common_name || "Unknown Species";
@@ -71,17 +74,35 @@ export default function SpeciesCard({ species, onViewDetails, onAddToCollection,
 
                 <div className="flex gap-4">
                     <button
-                        onClick={() => onViewDetails(species.id)}
-                        className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg font-semibold"
+                        onClick={async () => {
+                            if (isViewing) return;
+                            setIsViewing(true);
+                            try {
+                                await onViewDetails(species.id);
+                            } finally {
+                                setIsViewing(false);
+                            }
+                        }}
+                        disabled={isViewing || isAdding}
+                        className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg font-semibold disabled:opacity-60"
                     >
-                        Read More
+                        {isViewing ? 'Loading…' : 'Read More'}
                     </button>
 
                     <button
-                        onClick={() => onAddToCollection(species)}
-                        className="px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 shadow-lg font-semibold"
+                        onClick={async () => {
+                            if (isAdding) return;
+                            setIsAdding(true);
+                            try {
+                                await onAddToCollection(species);
+                            } finally {
+                                setIsAdding(false);
+                            }
+                        }}
+                        disabled={isAdding || isViewing}
+                        className="px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 shadow-lg font-semibold disabled:opacity-60"
                     >
-                        Add to Collection
+                        {isAdding ? 'Adding…' : 'Add to Collection'}
                     </button>
                 </div>
             </motion.div>

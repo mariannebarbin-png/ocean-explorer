@@ -15,13 +15,20 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [searchPerformed, setSearchPerformed] = useState(false);
+    const [lastSearchQuery, setLastSearchQuery] = useState('');
 
     const handleSearch = async (e) => {
         e.preventDefault();
         if (!searchQuery.trim()) {
             setSearchResults([]);
+            setSearchPerformed(false);
+            setLastSearchQuery('');
             return;
         }
+
+        setSearchPerformed(true);
+        setLastSearchQuery(searchQuery);
 
         setLoading(true);
         try {
@@ -39,45 +46,87 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
     const viewDetails = async (taxonId) => {
         try {
             const response = await fetch(`/api/species/${taxonId}`);
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    alert('Details not found (404). The species details may be unavailable.');
+                } else if (response.status === 419) {
+                    alert('Session expired (419). Please refresh the page and try again.');
+                } else {
+                    alert(`Failed to fetch details: ${response.status} ${response.statusText}`);
+                }
+                return;
+            }
+
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.includes('application/json')) {
+                // Server likely returned an HTML error page (Unexpected token '<')
+                alert('Unexpected server response. Details could not be loaded.');
+                return;
+            }
+
             const data = await response.json();
             setSelectedSpecies(data.species);
         } catch (error) {
             console.error('Error fetching details:', error);
+            alert('Error fetching species details. Please try again later.');
         }
     };
 
     const addToCollection = async (species) => {
     try {
+        // Normalize various shapes returned by search vs details
+        const taxonId = species.id ?? species.taxonID ?? species.taxon_id ?? null;
+        const scientificName = species.name ?? species.scientific_name ?? species.scientificName ?? null;
+        const commonName = species.preferred_common_name ?? species.vernacularName ?? species.common_name ?? null;
+        const description = species.description ?? species.wikipedia_summary ?? null;
+        const rank = species.rank ?? species.taxonRank ?? null;
+        const imageUrl = species.photo_url ?? species.photoUrl ?? (species.photo && species.photo.url) ?? null;
+        const family = species.family ?? null;
+
+        if (!taxonId) {
+            alert('Could not determine species taxon ID. Please open "Read More" first then try adding.');
+            return;
+        }
+
         const collectionData = {
-            taxon_id: species.id,
-            scientific_name: species.name,
-            common_name: species.preferred_common_name || null,
-            description:
-                species.description ||
-                species.wikipedia_summary ||
-                null,
-            rank: species.rank,
-            image_url: species.photo_url || null,
-            family: species.family || null,
+            taxon_id: parseInt(taxonId, 10),
+            scientific_name: scientificName,
+            common_name: commonName,
+            description: description,
+            rank: rank,
+            image_url: imageUrl,
+            family: family,
         };
 
         const response = await fetch('/collection', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document
-                    .querySelector('meta[name="csrf-token"]')
-                    .content,
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             },
             body: JSON.stringify(collectionData),
         });
 
-        if (response.ok) {
+        if (response.status === 201) {
             alert('🌊 Species added to your collection!');
+            return;
         }
+
+        if (response.status === 409) {
+            const body = await response.json().catch(() => ({}));
+            alert(body.message || 'This species is already in your collection.');
+            return;
+        }
+
+        // Other errors
+        const errorBody = await response.json().catch(() => ({}));
+        console.error('Add to collection failed', response.status, errorBody);
+        alert(errorBody.message || `Failed to add species: ${response.status}`);
 
     } catch (error) {
         console.error(error);
+        alert('An error occurred while adding to collection. See console for details.');
     }
 };
 
@@ -170,7 +219,11 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
                             className="text-center py-20"
                         >
                             <p className="text-2xl text-white/80">
-                                {loading ? 'Searching the depths...' : 'Search to discover marine species'}
+                                {loading
+                                    ? 'Searching the depths...'
+                                    : searchPerformed && lastSearchQuery
+                                    ? `No results found for "${lastSearchQuery}". Try a different term.`
+                                    : 'Search to discover marine species'}
                             </p>
                         </motion.div>
                     ) : (
@@ -236,4 +289,3 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
         </AuthenticatedLayout>
     );
 }
-

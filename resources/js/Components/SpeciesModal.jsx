@@ -1,6 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 
 export default function SpeciesModal({ species, onClose, onAddToCollection }) {
+    const [isAdding, setIsAdding] = useState(false);
     if (!species) return null;
 
     const scientificName = species.scientificName || species.scientific_name;
@@ -112,13 +114,22 @@ export default function SpeciesModal({ species, onClose, onAddToCollection }) {
 
                         {/* Action Button */}
                         <button
-                            onClick={() => {
-                                onAddToCollection(species);
-                                onClose();
+                            onClick={async () => {
+                                if (isAdding) return;
+                                setIsAdding(true);
+                                try {
+                                    await onAddToCollection(species);
+                                    onClose();
+                                } catch (e) {
+                                    console.error(e);
+                                } finally {
+                                    setIsAdding(false);
+                                }
                             }}
-                            className="w-full mt-6 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-105"
+                            disabled={isAdding}
+                            className="w-full mt-6 px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-105 disabled:opacity-60"
                         >
-                            Add to My Collection
+                            {isAdding ? 'Adding…' : 'Add to My Collection'}
                         </button>
                     </div>
                 </motion.div>

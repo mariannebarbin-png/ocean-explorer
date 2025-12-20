@@ -8,10 +8,10 @@ class INaturalistApiService
 {
     private string $baseUrl = 'https://api.inaturalist.org/v1';
 
-    /**
-     * Normalize iNaturalist results into a single consistent format
-     */
-    private function normalize($item)
+    /* ---------------------------------------------
+       Normalize result
+    ----------------------------------------------*/
+    private function normalize(array $item): array
     {
         return [
             'id' => $item['id'] ?? null,
@@ -20,87 +20,152 @@ class INaturalistApiService
             'rank' => $item['rank'] ?? null,
             'family' => $item['family'] ?? null,
 
-            // Photo normalization
             'photo_url' =>
                 $item['default_photo']['medium_url']
                 ?? $item['default_photo']['url']
                 ?? null,
 
-            // Wikipedia summary (best available description)
-            'description' => $item['wikipedia_summary'] ?? null,
+            'description' =>
+                $item['wikipedia_summary']
+                ?? $item['excerpt']
+                ?? null,
         ];
     }
 
-    public function searchSpecies(string $term, int $limit = 50)
+    /* ---------------------------------------------
+        EXCLUDE OBVIOUS NON-MARINE LIFE
+       (SAFE FILTER — DOES NOT OVERBLOCK)
+    ----------------------------------------------*/
+    private function isClearlyNonMarine(array $item): bool
+    {
+        $text = strtolower(
+            ($item['wikipedia_summary'] ?? '') .
+            ' ' .
+            ($item['name'] ?? '')
+        );
+
+        $blockedKeywords = [
+            'forest',
+            'rainforest',
+            'desert',
+            'savanna',
+            'grassland',
+            'terrestrial',
+            'land plant',
+            'tree',
+            'bird',
+            'insect',
+            'butterfly',
+            'bee',
+            'ant',
+            'reptile',
+            'amphibian',
+            'freshwater',
+            'river',
+            'lake',
+            'pond'
+        ];
+
+        foreach ($blockedKeywords as $word) {
+            if (str_contains($text, $word)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /* ---------------------------------------------
+       SEARCH (WORKING & MARINE-FOCUSED)
+    ----------------------------------------------*/
+    public function searchSpecies(string $term, int $limit = 50): array
     {
         try {
             $response = Http::timeout(6)
-            ->retry(2, 200)
-            ->get("$this->baseUrl/taxa", [
-                'q' => $term,
-                'per_page' => $limit,
-                'all_names' => true
-            ]);
+                ->retry(2, 200)
+                ->get("{$this->baseUrl}/taxa", [
+                    'q' => $term,
+                    'per_page' => $limit,
+                    'all_names' => true,
+                    'rank' => 'species',
+                ]);
 
-            if (!$response->successful()) return [];
+            if (!$response->successful()) {
+                return [];
+            }
 
             $items = $response->json()['results'] ?? [];
 
-            return array_map(fn($i) => $this->normalize($i), $items);
-        }
-        catch (\Exception $e) {
+            //  SAFE FILTER
+            $filtered = array_filter(
+                $items,
+                fn ($item) => !$this->isClearlyNonMarine($item)
+            );
+
+            return array_map(
+                fn ($item) => $this->normalize($item),
+                $filtered
+            );
+
+        } catch (\Exception $e) {
             return [];
         }
     }
 
-   public function getSpeciesById(int $id)
-{
-    try {
-        $response = Http::timeout(5)
-            ->retry(2, 200)
-            ->get("{$this->baseUrl}/taxa/{$id}");
-
-        if (!$response->successful()) {
-            return null;
-        }
-
-        $species = $response->json()['results'][0] ?? null;
-
-        if (!$species) {
-            return null;
-        }
-
-        // 🔑 Normalize description
-        $species['description'] =
-            $species['wikipedia_summary']
-            ?? $species['excerpt']
-            ?? null;
-
-        // 🔑 Normalize image
-        $species['photo_url'] =
-            $species['default_photo']['medium_url']
-            ?? null;
-
-        return $species;
-
-    } catch (\Exception $e) {
-        return null;
-    }
-}
-
-
-    public function getRandomSpecies($count = 20)
+    /* ---------------------------------------------
+       GET SPECIES DETAILS
+    ----------------------------------------------*/
+    public function getSpeciesById(int $id): ?array
     {
-        $groups = ['shark', 'whale', 'turtle', 'octopus', 'coral', 'seal'];
+        try {
+            $response = Http::timeout(5)
+                ->retry(2, 200)
+                ->get("{$this->baseUrl}/taxa/{$id}");
+
+            if (!$response->successful()) {
+                return null;
+            }
+
+            $species = $response->json()['results'][0] ?? null;
+
+            if (!$species || $this->isClearlyNonMarine($species)) {
+                return null;
+            }
+
+            $species['description'] =
+                $species['wikipedia_summary']
+                ?? $species['excerpt']
+                ?? null;
+
+            $species['photo_url'] =
+                $species['default_photo']['medium_url']
+                ?? null;
+
+            return $species;
+
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /* ---------------------------------------------
+       RANDOM MARINE SPECIES
+    ----------------------------------------------*/
+    public function getRandomSpecies(int $count = 20): array
+    {
+        $groups = ['shark', 'fish', 'whale', 'dolphin', 'coral', 'octopus'];
 
         $results = [];
-        foreach ($groups as $g) {
-            $chunk = $this->searchSpecies($g, 6);
-            $results = array_merge($results, $chunk);
+
+        foreach ($groups as $group) {
+            $results = array_merge(
+                $results,
+                $this->searchSpecies($group, 6)
+            );
         }
 
         shuffle($results);
+
         return array_slice($results, 0, $count);
     }
 }
-

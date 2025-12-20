@@ -33,7 +33,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * The attributes that should be cast. ensures user are secure/compatible with laravel
      *
      * @return array<string, string>
      */

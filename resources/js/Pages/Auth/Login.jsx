@@ -24,7 +24,7 @@ export default function Login({ status, canResetPassword }) {
         <GuestLayout>
             <Head title="Ocean Explorer | Login" />
 
-            {/* 🌊 Ocean Background */}
+            {/* Ocean Background */}
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#001f3f] via-[#003f7f] to-[#0066cc] relative overflow-hidden px-4">
 
                 {/* Floating bubbles */}
@@ -39,7 +39,7 @@ export default function Login({ status, canResetPassword }) {
 
                     {/* Logo / Title */}
                     <div className="text-center mb-6">
-                        <div className="text-5xl mb-2">🌊</div>
+                        <div className="text-5xl mb-2"></div>
                         <h1 className="text-3xl font-bold tracking-wide">
                             Ocean Explorer
                         </h1>
@@ -102,11 +102,18 @@ export default function Login({ status, canResetPassword }) {
 
                         {/* Actions */}
                         <div className="flex items-center justify-between">
+                                <Link
+                                    href={route('register')}
+                                    className="text-sm text-cyan-200 hover:text-white underline"
+                                >
+                                    Register
+                                </Link>
+                            
                             <PrimaryButton
                                 className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 px-6 py-3 rounded-xl font-bold"
                                 disabled={processing}
                             >
-                                🌊 Log In
+                                 Log In
                             </PrimaryButton>
                         </div>
                     </form>

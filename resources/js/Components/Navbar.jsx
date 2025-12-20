@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
 
 export default function Navbar() {
     const page = usePage();
-    const collectionCount = page.props.collectionCount || 0;
     const { url } = page;
+    const [loadingRoute, setLoadingRoute] = useState(null);
 
     const linkClass = (path) =>
         url && url.startsWith(path)
@@ -19,16 +19,30 @@ export default function Navbar() {
                 </Link>
 
                 <div className="flex gap-6 items-center text-lg text-white">
-                    <Link href="/explore" className={linkClass("/explore")}>Explore</Link>
-                    <Link href="/collection" className={linkClass("/collection") + " inline-flex items-center gap-2"}>
-                        <span>Collection</span>
-                        <span className="inline-flex items-center justify-center px-2 py-1 text-xs font-semibold rounded-full bg-cyan-500 text-white">
-                            {collectionCount}
-                        </span>
+                    <Link
+                        href="/explore"
+                        className={linkClass("/explore")}
+                        onClick={() => setLoadingRoute('explore')}
+                    >
+                        {loadingRoute === 'explore' ? 'Explore…' : 'Explore'}
                     </Link>
 
-                    <Link href={route('logout')} method="post" as="button" className="ml-4 text-sm text-white/90 hover:text-white">
-                        Log Out
+                    <Link
+                        href="/collection"
+                        className={linkClass("/collection") + " inline-flex items-center gap-2"}
+                        onClick={() => setLoadingRoute('collection')}
+                    >
+                        <span>{loadingRoute === 'collection' ? 'Collection…' : 'Collection'}</span>
+                    </Link>
+
+                    <Link
+                        href={route('logout')}
+                        method="post"
+                        as="button"
+                        className="ml-4 text-sm text-white/90 hover:text-white"
+                        onClick={() => setLoadingRoute('logout')}
+                    >
+                        {loadingRoute === 'logout' ? 'Logging out…' : 'Log Out'}
                     </Link>
                 </div>
             </div>
