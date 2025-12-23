@@ -35,6 +35,12 @@ Route::get('/api/species/search', [MarineCollectionController::class, 'search'])
 Route::get('/api/species/{taxonId}', [MarineCollectionController::class, 'show'])
     ->name('species.show');
 
+// Public endpoint to fetch a fresh CSRF token. Used by the SPA when the
+// in-page meta tag may be stale after client-side navigation/login.
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+})->name('csrf.token');
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes

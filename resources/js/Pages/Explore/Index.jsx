@@ -8,6 +8,8 @@ import OceanBubbles from '@/Components/OceanBubbles';
 import SpeciesCard from '@/Components/SpeciesCard';
 import SpeciesModal from '@/Components/SpeciesModal';
 import StoryIntroModal from '@/Components/StoryIntroModal';
+import getCsrfToken from '@/lib/csrf';
+import fetchWithCsrf from '@/lib/fetchWithCsrf';
 
 export default function Explore({ auth, species = [], collectionCount = 0 }) {
     const [showIntro, setShowIntro] = useState(true);
@@ -99,11 +101,10 @@ export default function Explore({ auth, species = [], collectionCount = 0 }) {
             family: family,
         };
 
-        const response = await fetch('/collection', {
+        const response = await fetchWithCsrf('/collection', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             },
             body: JSON.stringify(collectionData),
         });

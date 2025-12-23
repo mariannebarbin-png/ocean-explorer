@@ -47,6 +47,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        // After logout, redirect directly to the login page instead of the
+        // homepage which redirects to an authenticated route. This avoids
+        // Inertia following a redirect into an auth-protected page and showing
+        // a 419 "Page Expired" screen.
+        return redirect()->route('login');
     }
 }

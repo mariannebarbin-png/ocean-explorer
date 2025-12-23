@@ -4,6 +4,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { motion } from 'framer-motion';
 import OceanBackground from '@/Components/OceanBackground';
 import OceanBubbles from '@/Components/OceanBubbles';
+import getCsrfToken from '@/lib/csrf';
+import fetchWithCsrf from '@/lib/fetchWithCsrf';
 
 export default function CollectionIndex({ auth, collections }) {
     /* -----------------------------
@@ -36,12 +38,11 @@ export default function CollectionIndex({ auth, collections }) {
         try {
             setSavingId(collectionId);
 
-            const response = await fetch(`/collection/${collectionId}`, {
+            const response = await fetchWithCsrf(`/collection/${collectionId}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
                 body: JSON.stringify({ personal_notes: noteText }),
             });
@@ -76,11 +77,8 @@ export default function CollectionIndex({ auth, collections }) {
         if (!confirm('Remove this species from your collection?')) return;
 
         try {
-            const response = await fetch(`/collection/${collectionId}`, {
+            const response = await fetchWithCsrf(`/collection/${collectionId}`, {
                 method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                },
             });
 
             if (response.ok) {

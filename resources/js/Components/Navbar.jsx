@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, usePage } from "@inertiajs/react";
+import fetchWithCsrf from '@/lib/fetchWithCsrf';
 
 export default function Navbar() {
     const page = usePage();
@@ -35,15 +36,34 @@ export default function Navbar() {
                         <span>{loadingRoute === 'collection' ? 'Collection…' : 'Collection'}</span>
                     </Link>
 
-                    <Link
-                        href={route('logout')}
-                        method="post"
-                        as="button"
+                    <button
+                        type="button"
                         className="ml-4 text-sm text-white/90 hover:text-white"
-                        onClick={() => setLoadingRoute('logout')}
+                        onClick={async () => {
+                            try {
+                                setLoadingRoute('logout');
+                                const res = await fetchWithCsrf('/logout', { method: 'POST' });
+                                // If server redirects with 302, some browsers may not expose
+                                // the redirected location to fetch — perform a hard redirect
+                                // to the login page on success to ensure session is cleared.
+                                if (res.ok || res.status === 302) {
+                                    window.location.href = route('login');
+                                    return;
+                                }
+
+                                // If we get 419 or other errors, show an alert and clear loading
+                                const body = await res.text().catch(() => '');
+                                alert(`Logout failed: ${res.status} ${body}`);
+                            } catch (e) {
+                                console.error(e);
+                                alert('Logout failed, please try again.');
+                            } finally {
+                                setLoadingRoute(null);
+                            }
+                        }}
                     >
                         {loadingRoute === 'logout' ? 'Logging out…' : 'Log Out'}
-                    </Link>
+                    </button>
                 </div>
             </div>
         </nav>
