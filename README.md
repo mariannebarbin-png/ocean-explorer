@@ -58,5 +58,104 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
-## How to Set up
+# Ocean Explorer – Marine Species Discovery System
+
+## Project Overview
+Ocean Explorer is a web-based marine species discovery and collection system.  
+Users can explore marine life, view detailed species information, and build their own personal marine collection with notes.
+
+
+## Tech Stack
+
+### Backend
+- Laravel 12
+- PHP 8+
+- MySQL
+- Laravel Breeze (Authentication)
+- Laravel Sanctum (CSRF & SPA support)
+
+### Frontend
+- React (via Inertia.js)
+- Tailwind CSS
+- Framer Motion
+
+### External API
+- iNaturalist API (Species data)
+
+---
+
+## Features
+- User authentication (Register, Login, Logout, Email Verification)
+- Explore marine species via search
+- View species details
+- Add species to personal collection
+- Add and edit notes per species (real-time update)
+- Animated ocean-themed UI
+- CSRF-protected requests for security
+
+---
+
+## System Requirements
+- PHP 8.1+
+- Composer
+- Node.js
+- NPM
+- MySQL
+
+---
+
+## Installation Guide
+
+### 1. Clone Repository
+git clone https://github.com/your-username/ocean-explorer.git
+cd ocean-explorer
+
+### 2. Install Backend Dependencies
+composer install
+
+### 3. Install Frontend Dependencies
+npm install
+
+### 4. Environment Setup
+cp .env.example .env
+Update .env database credentials:
+Env
+DB_DATABASE=ocean_explorer
+DB_USERNAME=root
+DB_PASSWORD=
+
+### 5. Generate App Key
+php artisan key:generate
+
+### 6. Run Migrations
+php artisan migrate
+
+### 7. Build Frontend Assets
+npm run dev
+
+### 8. Run the Application
+php artisan serve
+Access the app at:
+http://127.0.0.1:8000
+
+### Authentication
+Handled using Laravel Breeze
+Protected routes use auth and verified middleware
+Sessions are regenerated after login/logout for security
+
+### CSRF Handling
+Custom CSRF utilities are implemented to support SPA behavior
+CSRF token is fetched and attached automatically to POST, PATCH, and DELETE requests
+Prevents 419 Page Expired errors
+
+### Marine Species Data
+Data is fetched from the iNaturalist API
+Filtering logic is applied to reduce non-marine species results
+
+### Work Distribution
+(Barbin) Backend: Authentication, API integration, database, CSRF handling
+
+(Aurea) Frontend: UI design, animations, pages, components
+
+(Quilaton) Integration & Testing: Feature integration, bug fixing, UX testing
 
